@@ -32,6 +32,8 @@ export interface Database {
           due_date: string | null;
           priority: 'low' | 'medium' | 'high';
           status: 'pending' | 'completed' | 'cancelled';
+          category: string | null;
+          is_flagged: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -42,6 +44,8 @@ export interface Database {
           due_date?: string | null;
           priority?: 'low' | 'medium' | 'high';
           status?: 'pending' | 'completed' | 'cancelled';
+          category?: string | null;
+          is_flagged?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -52,6 +56,8 @@ export interface Database {
           due_date?: string | null;
           priority?: 'low' | 'medium' | 'high';
           status?: 'pending' | 'completed' | 'cancelled';
+          category?: string | null;
+          is_flagged?: boolean;
           created_at?: string;
           updated_at?: string;
         };

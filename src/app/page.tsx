@@ -1,12 +1,16 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, CheckCircle, Calendar, Plus } from "lucide-react";
+import { NavBar } from "@/components/NavBar";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-8">
+    <>
+      <NavBar />
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -102,13 +106,17 @@ export default function Home() {
               </div>
 
               <div className="mt-6 flex gap-4">
-                <Button className="flex-1">
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  Connect WhatsApp
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  View Tasks
-                </Button>
+                <Link href="/dashboard" className="flex-1">
+                  <Button className="w-full">
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    View Dashboard
+                  </Button>
+                </Link>
+                <Link href="/actions" className="flex-1">
+                  <Button variant="outline" className="w-full">
+                    View Actions
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
@@ -120,7 +128,8 @@ export default function Home() {
             🚧 MVP in Development
           </Badge>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

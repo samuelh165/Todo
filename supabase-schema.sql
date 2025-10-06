@@ -27,6 +27,8 @@ CREATE TABLE IF NOT EXISTS tasks (
     due_date TIMESTAMP WITH TIME ZONE,
     priority TEXT CHECK (priority IN ('low', 'medium', 'high')) DEFAULT 'medium',
     status TEXT CHECK (status IN ('pending', 'completed', 'cancelled')) DEFAULT 'pending',
+    category TEXT,
+    is_flagged BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -36,6 +38,7 @@ CREATE INDEX IF NOT EXISTS idx_users_phone_number ON users(phone_number);
 CREATE INDEX IF NOT EXISTS idx_tasks_user_id ON tasks(user_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
 CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
+CREATE INDEX IF NOT EXISTS idx_tasks_is_flagged ON tasks(is_flagged);
 CREATE INDEX IF NOT EXISTS idx_topics_user_id ON topics(user_id);
 
 -- Create updated_at trigger function
