@@ -10,8 +10,8 @@ export async function GET(request: NextRequest) {
   const supabase = createServerClient()
 
   try {
-    let query = supabase
-      .from("tasks")
+    let query = (supabase
+      .from("tasks") as any)
       .select(`
         *,
         users (
@@ -81,8 +81,8 @@ export async function POST(request: NextRequest) {
     const parsedTask = await parseMessageToTask(content)
 
     // Create task
-    const { data: task, error } = await supabase
-      .from("tasks")
+    const { data: task, error } = await (supabase
+      .from("tasks") as any)
       .insert({
         user_id,
         content: parsedTask.content,

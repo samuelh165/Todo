@@ -14,8 +14,8 @@ export async function PATCH(
     const updates = body
 
     // Update task
-    const { data: task, error } = await supabase
-      .from("tasks")
+    const { data: task, error } = await (supabase
+      .from("tasks") as any)
       .update(updates)
       .eq("id", id)
       .select(`
@@ -55,8 +55,8 @@ export async function DELETE(
   const { id } = await params
 
   try {
-    const { error } = await supabase
-      .from("tasks")
+    const { error } = await (supabase
+      .from("tasks") as any)
       .delete()
       .eq("id", id)
 
