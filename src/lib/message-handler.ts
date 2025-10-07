@@ -128,7 +128,9 @@ async function handleListTasks(
     const number = index + 1;
     const priorityEmoji = task.priority === 'high' ? '🔴' : task.priority === 'low' ? '🟢' : '🟡';
     
-    listMessage += `${number}. ${priorityEmoji} ${task.content}`;
+    // Show title if available, otherwise show content
+    const displayText = task.title || task.summary || task.content;
+    listMessage += `${number}. ${priorityEmoji} ${displayText}`;
     
     if (task.due_date) {
       const dueDate = new Date(task.due_date);
@@ -226,9 +228,11 @@ async function handleMarkDone(
     };
   }
 
+  const displayText = taskToComplete.title || taskToComplete.summary || taskToComplete.content;
+  
   return {
     success: true,
-    message: `✅ Marked as done: "${taskToComplete.content}"`,
+    message: `✅ Marked as done: "${displayText}"`,
     command: 'done',
   };
 }
@@ -297,9 +301,11 @@ async function handleCancelTask(
     };
   }
 
+  const displayText = taskToCancel.title || taskToCancel.summary || taskToCancel.content;
+  
   return {
     success: true,
-    message: `🗑️ Cancelled: "${taskToCancel.content}"`,
+    message: `🗑️ Cancelled: "${displayText}"`,
     command: 'cancel',
   };
 }
@@ -374,9 +380,12 @@ async function handleCreateTask(
     .from('tasks')
     .insert({
       user_id: userId,
+      title: parsedTask.title,
       content: parsedTask.content,
+      summary: parsedTask.summary,
       due_date: parsedTask.due_date,
       priority: parsedTask.priority,
+      category: parsedTask.category,
       status: 'pending',
     } as never)
     .select()
@@ -391,8 +400,22 @@ async function handleCreateTask(
     };
   }
 
-  // Build confirmation message
-  let confirmationMessage = `✅ Task added: "${parsedTask.content}"`;
+  // Build confirmation message with smart formatting
+  let confirmationMessage = '✅ Task added!';
+  
+  if (parsedTask.title) {
+    confirmationMessage += `\n\n📌 *${parsedTask.title}*`;
+  }
+  
+  if (parsedTask.summary) {
+    confirmationMessage += `\n${parsedTask.summary}`;
+  } else if (!parsedTask.title) {
+    confirmationMessage += `\n"${parsedTask.content}"`;
+  }
+
+  if (parsedTask.category) {
+    confirmationMessage += `\n🏷️ ${parsedTask.category}`;
+  }
 
   if (parsedTask.due_date) {
     const dueDate = new Date(parsedTask.due_date);

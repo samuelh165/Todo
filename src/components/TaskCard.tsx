@@ -149,14 +149,40 @@ export function TaskCard({ task, onUpdate, onDelete, showPhone }: TaskCardProps)
               </div>
             ) : (
               <>
+                {/* Title - if available */}
+                {task.title && (
+                  <h3
+                    className={cn(
+                      "text-base font-semibold mb-1",
+                      task.status === "completed" && "line-through text-muted-foreground"
+                    )}
+                  >
+                    {task.title}
+                  </h3>
+                )}
+                
+                {/* Summary or Content */}
                 <p
                   className={cn(
-                    "text-sm font-medium mb-2",
-                    task.status === "completed" && "line-through text-muted-foreground"
+                    "text-sm mb-2",
+                    task.title ? "text-muted-foreground" : "font-medium",
+                    task.status === "completed" && "line-through opacity-60"
                   )}
                 >
-                  {task.content}
+                  {task.summary || task.content}
                 </p>
+                
+                {/* Show full content in a collapsible way if we have both title and summary */}
+                {task.title && task.summary && task.content !== task.summary && (
+                  <details className="mb-2">
+                    <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
+                      View original message
+                    </summary>
+                    <p className="text-xs text-muted-foreground mt-1 pl-2 border-l-2 border-gray-200">
+                      {task.content}
+                    </p>
+                  </details>
+                )}
                 
                 <div className="flex flex-wrap items-center gap-2">
                   {task.is_flagged && (

@@ -85,9 +85,12 @@ export async function POST(request: NextRequest) {
       .from("tasks") as any)
       .insert({
         user_id,
+        title: parsedTask.title,
         content: parsedTask.content,
+        summary: parsedTask.summary,
         due_date: parsedTask.due_date,
         priority: parsedTask.priority,
+        category: parsedTask.category,
         status: "pending",
       })
       .select(`

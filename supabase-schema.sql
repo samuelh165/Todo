@@ -23,7 +23,9 @@ CREATE TABLE IF NOT EXISTS topics (
 CREATE TABLE IF NOT EXISTS tasks (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title TEXT,
     content TEXT NOT NULL,
+    summary TEXT,
     due_date TIMESTAMP WITH TIME ZONE,
     priority TEXT CHECK (priority IN ('low', 'medium', 'high')) DEFAULT 'medium',
     status TEXT CHECK (status IN ('pending', 'completed', 'cancelled')) DEFAULT 'pending',

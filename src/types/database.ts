@@ -28,7 +28,9 @@ export interface Database {
         Row: {
           id: string;
           user_id: string;
+          title: string | null;
           content: string;
+          summary: string | null;
           due_date: string | null;
           priority: 'low' | 'medium' | 'high';
           status: 'pending' | 'completed' | 'cancelled';
@@ -40,7 +42,9 @@ export interface Database {
         Insert: {
           id?: string;
           user_id: string;
+          title?: string | null;
           content: string;
+          summary?: string | null;
           due_date?: string | null;
           priority?: 'low' | 'medium' | 'high';
           status?: 'pending' | 'completed' | 'cancelled';
@@ -52,7 +56,9 @@ export interface Database {
         Update: {
           id?: string;
           user_id?: string;
+          title?: string | null;
           content?: string;
+          summary?: string | null;
           due_date?: string | null;
           priority?: 'low' | 'medium' | 'high';
           status?: 'pending' | 'completed' | 'cancelled';
