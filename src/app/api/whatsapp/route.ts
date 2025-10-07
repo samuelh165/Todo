@@ -124,8 +124,8 @@ async function processAndCreateTask(
       is_flagged: false,
     };
 
-    const { data: task, error } = await supabase
-      .from('tasks')
+    const { data: task, error } = await (supabase
+      .from('tasks') as any)
       .insert(taskData)
       .select()
       .single();
@@ -135,7 +135,7 @@ async function processAndCreateTask(
       console.error('⚠️ Task insert error:', error);
       
       // Fallback: minimal task insert
-      await supabase.from('tasks').insert({
+      await (supabase.from('tasks') as any).insert({
         user_id: user.id,
         content: messageText,
         status: 'pending' as const,
@@ -205,7 +205,7 @@ async function findOrCreateUser(phoneNumber: string): Promise<{
  * - Batch process multiple tasks for efficiency
  * - Use embeddings for semantic similarity
  */
-function scheduleRecategorization(taskId: string, originalMessage: string): void {
+function scheduleRecategorization(taskId: string, _originalMessage: string): void {
   console.log(`🔄 Scheduling re-categorization for task ${taskId}`);
   
   // TODO: Implement background job
@@ -218,7 +218,7 @@ function scheduleRecategorization(taskId: string, originalMessage: string): void
   // Example implementation:
   // await queueJob('recategorize-task', {
   //   taskId,
-  //   originalMessage,
+  //   originalMessage: _originalMessage,
   //   retryCount: 0,
   // });
 }
