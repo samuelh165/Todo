@@ -180,8 +180,8 @@ async function findOrCreateUser(phoneNumber: string): Promise<{
   }
 
   // Create new user
-  const { data: newUser, error } = await supabase
-    .from('users')
+  const { data: newUser, error } = await (supabase
+    .from('users') as any)
     .insert({ phone_number: formattedPhone })
     .select()
     .single();
@@ -205,7 +205,8 @@ async function findOrCreateUser(phoneNumber: string): Promise<{
  * - Batch process multiple tasks for efficiency
  * - Use embeddings for semantic similarity
  */
-function scheduleRecategorization(taskId: string, _originalMessage: string): void {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function scheduleRecategorization(taskId: string, originalMessage: string): void {
   console.log(`🔄 Scheduling re-categorization for task ${taskId}`);
   
   // TODO: Implement background job
