@@ -79,6 +79,13 @@ export async function POST(request: NextRequest) {
 
     // Parse the content with AI
     const parsedTask = await parseMessageToTask(content)
+    
+    console.log('Creating task with parsed data:', {
+      title: parsedTask.title,
+      summary: parsedTask.summary,
+      category: parsedTask.category,
+      priority: parsedTask.priority
+    })
 
     // Create task
     const { data: task, error } = await (supabase

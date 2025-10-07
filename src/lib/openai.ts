@@ -19,9 +19,17 @@ export interface ParsedTask {
  * Falls back to raw message if parsing fails
  */
 export async function parseMessageToTask(message: string): Promise<ParsedTask> {
+  // Generate a simple title from the message for fallback
+  const generateSimpleTitle = (text: string): string => {
+    const words = text.trim().split(/\s+/);
+    let title = words.slice(0, 6).join(' ');
+    if (words.length > 6) title += '...';
+    return title;
+  };
+  
   // Fallback response in case everything fails
   const fallback: ParsedTask = {
-    title: null,
+    title: generateSimpleTitle(message),
     content: message,
     summary: null,
     due_date: null,
@@ -98,8 +106,18 @@ Always return this exact JSON structure:
       priority: result.priority
     });
     
+    // Generate a fallback title if AI didn't provide one
+    let finalTitle = result.title;
+    if (!finalTitle || finalTitle.trim() === '') {
+      // Create a simple title from the first few words
+      const words = message.trim().split(/\s+/);
+      finalTitle = words.slice(0, 6).join(' ');
+      if (words.length > 6) finalTitle += '...';
+      console.log('Generated fallback title:', finalTitle);
+    }
+    
     return {
-      title: result.title || null,
+      title: finalTitle,
       content: result.content || message,
       summary: result.summary || null,
       due_date: result.due_date || null,
