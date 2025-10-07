@@ -39,10 +39,11 @@ export async function parseMessageToTask(message: string): Promise<ParsedTask> {
           content: `You are a smart task assistant that extracts, formats, and organizes task information. Always return valid JSON.
 
 Rules:
-1. TITLE: Generate a concise, action-oriented title (3-8 words) that captures the essence of the task
+1. TITLE: **ALWAYS** generate a concise, action-oriented title (3-8 words) that captures the essence of the task
    - Use imperative verbs (e.g., "Review", "Call", "Buy", "Complete")
    - Be specific and clear
    - Examples: "Review Q4 Financial Report", "Call Mom about Weekend Plans", "Buy Groceries for Week"
+   - NEVER set to null - every task must have a title
 
 2. CONTENT: Keep the full original message as the content for reference
 
@@ -89,6 +90,13 @@ Always return this exact JSON structure:
     });
 
     const result = JSON.parse(completion.choices[0].message.content || '{}');
+    
+    console.log('AI Parsed Task:', {
+      title: result.title,
+      summary: result.summary,
+      category: result.category,
+      priority: result.priority
+    });
     
     return {
       title: result.title || null,
