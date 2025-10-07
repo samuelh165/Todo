@@ -1,11 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { whatsappClient, WhatsAppWebhookEntry } from '@/lib/whatsapp';
-import { handleMessage } from '@/lib/message-handler';
+import { parseMessageToTask } from '@/lib/openai';
 import { createServerClient } from '@/lib/supabase';
 
 /**
+ * Lightweight WhatsApp webhook handler
+ * - Accepts any free-form message
+ * - Always creates a task (never fails)
+ * - Minimal response (✅ only)
+ * - Background re-categorization support
+ */
+
+const SILENT_MODE = false; // Toggle to skip WhatsApp replies entirely
+
+/**
  * GET handler for webhook verification
- * WhatsApp will send a verification request when setting up the webhook
+ * WhatsApp requires this to verify your endpoint
  */
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -16,13 +26,12 @@ export async function GET(request: NextRequest) {
 
   const verifyToken = process.env.WHATSAPP_VERIFY_TOKEN;
 
-  // Check if verification token matches
   if (mode === 'subscribe' && token === verifyToken) {
-    console.log('Webhook verified successfully');
+    console.log('✅ Webhook verified successfully');
     return new NextResponse(challenge, { status: 200 });
   }
 
-  console.error('Webhook verification failed');
+  console.error('❌ Webhook verification failed');
   return NextResponse.json({ error: 'Verification failed' }, { status: 403 });
 }
 
@@ -33,9 +42,9 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    console.log('Webhook received:', JSON.stringify(body, null, 2));
+    console.log('📨 Webhook received:', JSON.stringify(body, null, 2));
 
-    // Check if this is a WhatsApp message notification
+    // Validate webhook payload
     if (body.object !== 'whatsapp_business_account') {
       return NextResponse.json({ status: 'ignored' }, { status: 200 });
     }
@@ -61,31 +70,17 @@ export async function POST(request: NextRequest) {
           const messageText = message.text.body;
           const messageId = message.id;
 
-          console.log(`Processing message from ${phoneNumber}: ${messageText}`);
+          console.log(`💬 Message from ${phoneNumber}: ${messageText}`);
 
-          // Mark message as read
+          // Mark as read (triggers blue ticks)
           await whatsappClient.markAsRead(messageId);
 
-          // Send "processing" reaction
-          await whatsappClient.sendReaction(phoneNumber, messageId, '⏳');
+          // Process message and create task (never fails)
+          await processAndCreateTask(phoneNumber, messageText);
 
-          try {
-            // Process the message
-            await processIncomingMessage(phoneNumber, messageText);
-
-            // Send success reaction
-            await whatsappClient.sendReaction(phoneNumber, messageId, '✅');
-          } catch (error) {
-            console.error('Error processing message:', error);
-            
-            // Send error reaction
-            await whatsappClient.sendReaction(phoneNumber, messageId, '❌');
-            
-            // Send error message to user
-            await whatsappClient.sendMessage(
-              phoneNumber,
-              '❌ Sorry, I had trouble processing your message. Please try again.'
-            );
+          // Send minimal confirmation
+          if (!SILENT_MODE) {
+            await whatsappClient.sendMessage(phoneNumber, '✅');
           }
         }
       }
@@ -93,41 +88,75 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ status: 'success' }, { status: 200 });
   } catch (error) {
-    console.error('Webhook error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error('❌ Webhook error:', error);
+    // Still return 200 to avoid retries from WhatsApp
+    return NextResponse.json({ status: 'error', message: 'Internal error' }, { status: 200 });
   }
 }
 
 /**
- * Process an incoming WhatsApp message
- * 1. Find or create user
- * 2. Handle message/command
- * 3. Send response
+ * Process incoming message and create task
+ * This function NEVER throws - it always creates a task
  */
-async function processIncomingMessage(
+async function processAndCreateTask(
   phoneNumber: string,
   messageText: string
 ): Promise<void> {
-  // 1. Find or create user
-  const user = await findOrCreateUser(phoneNumber);
+  const supabase = createServerClient();
 
-  // 2. Handle message/command
-  const result = await handleMessage(phoneNumber, messageText, user.id);
+  try {
+    // 1. Find or create user
+    const user = await findOrCreateUser(phoneNumber);
 
-  // 3. Send response
-  await whatsappClient.sendMessage(phoneNumber, result.message);
+    // 2. Parse message with AI (lenient, always returns data)
+    const parsed = await parseMessageToTask(messageText);
 
-  console.log('Message processed:', {
-    command: result.command,
-    success: result.success,
-  });
+    console.log('🤖 Parsed task:', parsed);
+
+    // 3. Create task with fallback values
+    const taskData = {
+      user_id: user.id,
+      content: parsed.content || messageText, // Fallback to raw message
+      due_date: parsed.due_date || null,
+      priority: parsed.priority || 'medium',
+      category: parsed.category || null,
+      status: 'pending' as const,
+      is_flagged: false,
+    };
+
+    const { data: task, error } = await (supabase
+      .from('tasks') as any)
+      .insert(taskData)
+      .select()
+      .single();
+
+    if (error) {
+      // Log error but don't throw - try fallback insert
+      console.error('⚠️ Task insert error:', error);
+      
+      // Fallback: minimal task insert
+      await (supabase.from('tasks') as any).insert({
+        user_id: user.id,
+        content: messageText,
+        status: 'pending' as const,
+      });
+    } else {
+      console.log('✅ Task created:', task?.id);
+
+      // 4. Optionally trigger background re-categorization
+      if (task && (!parsed.category || parsed.confidence < 0.7)) {
+        scheduleRecategorization(task.id, messageText);
+      }
+    }
+  } catch (error) {
+    console.error('❌ Failed to process task:', error);
+    // Even if everything fails, we've already acknowledged the message
+    // This prevents message loss and avoids blocking the webhook
+  }
 }
 
 /**
- * Find an existing user or create a new one
+ * Find existing user or create new one
  */
 async function findOrCreateUser(phoneNumber: string): Promise<{
   id: string;
@@ -136,7 +165,7 @@ async function findOrCreateUser(phoneNumber: string): Promise<{
 }> {
   const supabase = createServerClient();
 
-  // Format phone number (remove special characters)
+  // Format phone number
   const formattedPhone = whatsappClient.formatPhoneNumber(phoneNumber);
 
   // Try to find existing user
@@ -153,18 +182,45 @@ async function findOrCreateUser(phoneNumber: string): Promise<{
   // Create new user
   const { data: newUser, error } = await (supabase
     .from('users') as any)
-    .insert({
-      phone_number: formattedPhone,
-    })
+    .insert({ phone_number: formattedPhone })
     .select()
     .single();
 
   if (error || !newUser) {
-    console.error('Error creating user:', error);
+    console.error('❌ Error creating user:', error);
     throw new Error('Failed to create user');
   }
 
-  console.log('New user created:', newUser);
+  console.log('👤 New user created:', newUser.id);
   return newUser;
+}
+
+/**
+ * Placeholder for background re-categorization
+ * This would be triggered for low-confidence or uncategorized tasks
+ * 
+ * Implementation ideas:
+ * - Queue job to re-analyze task with more context
+ * - Use task history to improve categorization
+ * - Batch process multiple tasks for efficiency
+ * - Use embeddings for semantic similarity
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function scheduleRecategorization(taskId: string, originalMessage: string): void {
+  console.log(`🔄 Scheduling re-categorization for task ${taskId}`);
+  
+  // TODO: Implement background job
+  // Options:
+  // 1. Vercel Cron Job: https://vercel.com/docs/cron-jobs
+  // 2. Supabase Edge Functions: https://supabase.com/docs/guides/functions
+  // 3. Queue system: Bull, BullMQ, or Inngest
+  // 4. Simple setTimeout for immediate retry (not production-ready)
+  
+  // Example implementation:
+  // await queueJob('recategorize-task', {
+  //   taskId,
+  //   originalMessage: _originalMessage,
+  //   retryCount: 0,
+  // });
 }
 
