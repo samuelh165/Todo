@@ -361,6 +361,14 @@ async function handleCreateTask(
 
   // Parse message with AI
   const parsedTask = await parseMessageToTask(message);
+  
+  console.log('WhatsApp - Parsed task:', {
+    title: parsedTask.title,
+    summary: parsedTask.summary,
+    category: parsedTask.category,
+    priority: parsedTask.priority,
+    confidence: parsedTask.confidence
+  });
 
   // Check if AI could extract a task
   if (!parsedTask.content || parsedTask.confidence < 0.4) {
@@ -376,18 +384,22 @@ async function handleCreateTask(
   }
 
   // Create task in database
-  const { error } = await supabase
+  const taskData = {
+    user_id: userId,
+    title: parsedTask.title,
+    content: parsedTask.content,
+    summary: parsedTask.summary,
+    due_date: parsedTask.due_date,
+    priority: parsedTask.priority,
+    category: parsedTask.category,
+    status: 'pending',
+  };
+  
+  console.log('WhatsApp - Inserting task to DB:', taskData);
+  
+  const { data: createdTask, error } = await supabase
     .from('tasks')
-    .insert({
-      user_id: userId,
-      title: parsedTask.title,
-      content: parsedTask.content,
-      summary: parsedTask.summary,
-      due_date: parsedTask.due_date,
-      priority: parsedTask.priority,
-      category: parsedTask.category,
-      status: 'pending',
-    } as never)
+    .insert(taskData as never)
     .select()
     .single();
 
@@ -399,6 +411,8 @@ async function handleCreateTask(
       command: 'task',
     };
   }
+  
+  console.log('WhatsApp - Task created successfully:', createdTask);
 
   // Build confirmation message with smart formatting
   let confirmationMessage = '✅ Task added!';
