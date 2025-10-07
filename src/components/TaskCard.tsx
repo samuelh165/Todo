@@ -5,7 +5,6 @@ import { Task, User } from "@/types/database"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import {
   DropdownMenu,
@@ -19,7 +18,6 @@ import {
   MoreVertical, 
   Pencil, 
   Trash2, 
-  X,
   Flag
 } from "lucide-react"
 import { format, isToday, isTomorrow, isPast } from "date-fns"

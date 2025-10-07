@@ -17,11 +17,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch the task
-    const { data: task, error: fetchError } = await supabase
+    const { data: task, error: fetchError } = await (supabase
       .from("tasks")
       .select("*")
       .eq("id", task_id)
-      .single()
+      .single() as any)
 
     if (fetchError || !task) {
       return NextResponse.json(
@@ -59,7 +59,7 @@ Respond with ONLY the category name, nothing else.`,
     const category = completion.choices[0]?.message?.content?.trim() || "Other"
 
     // Update task with category and unflag it
-    const { data: updatedTask, error: updateError } = await supabase
+    const { data: updatedTask, error: updateError } = await (supabase
       .from("tasks")
       .update({
         category,
@@ -74,7 +74,7 @@ Respond with ONLY the category name, nothing else.`,
           name
         )
       `)
-      .single()
+      .single() as any)
 
     if (updateError) {
       console.error("Error updating task:", updateError)
