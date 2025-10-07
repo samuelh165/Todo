@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Log tasks to verify title/summary are present
-    console.log('Fetching tasks - sample:', tasks?.slice(0, 2).map(t => ({
+    console.log('Fetching tasks - sample:', tasks?.slice(0, 2).map((t: any) => ({
       id: t.id,
       title: t.title,
       summary: t.summary,
