@@ -24,9 +24,9 @@ export function WhatsAppHelp() {
             <h3 className="text-sm font-semibold">Add Tasks</h3>
           </div>
           <div className="text-sm text-muted-foreground space-y-1 ml-4">
-            <p>• "Buy groceries tomorrow"</p>
-            <p>• "Call dentist next Tuesday high priority"</p>
-            <p>• "Submit report by Friday"</p>
+            <p>• &quot;Buy groceries tomorrow&quot;</p>
+            <p>• &quot;Call dentist next Tuesday high priority&quot;</p>
+            <p>• &quot;Submit report by Friday&quot;</p>
           </div>
         </div>
 
