@@ -205,4 +205,4 @@ Make sure to set all environment variables in your Vercel project settings.
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License.# Trigger redeploy
