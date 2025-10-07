@@ -116,7 +116,9 @@ async function processAndCreateTask(
     // 3. Create task with fallback values
     const taskData = {
       user_id: user.id,
+      title: parsed.title || null,
       content: parsed.content || messageText, // Fallback to raw message
+      summary: parsed.summary || null,
       due_date: parsed.due_date || null,
       priority: parsed.priority || 'medium',
       category: parsed.category || null,
