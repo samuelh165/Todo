@@ -5,6 +5,7 @@ import { Task, User } from "@/types/database"
 import { NavBar } from "@/components/NavBar"
 import { TaskCard } from "@/components/TaskCard"
 import { AddTaskForm } from "@/components/AddTaskForm"
+import { WhatsAppHelp } from "@/components/WhatsAppHelp"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "sonner"
 
@@ -128,6 +129,11 @@ export default function DashboardPage() {
             <p className="text-muted-foreground">
               Manage your tasks and stay organized
             </p>
+          </div>
+
+          {/* WhatsApp Help Section */}
+          <div className="mb-8">
+            <WhatsAppHelp />
           </div>
 
           {/* Add Task Form */}

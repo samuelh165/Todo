@@ -18,9 +18,11 @@ import {
   MoreVertical, 
   Pencil, 
   Trash2, 
-  Flag
+  Flag,
+  Clock,
+  Tag
 } from "lucide-react"
-import { format, isToday, isTomorrow, isPast } from "date-fns"
+import { format, isToday, isTomorrow, isPast, formatDistanceToNow } from "date-fns"
 import { cn } from "@/lib/utils"
 
 interface TaskCardProps {
@@ -63,6 +65,13 @@ export function TaskCard({ task, onUpdate, onDelete, showPhone }: TaskCardProps)
     if (!onUpdate) return
     await onUpdate(task.id, { is_flagged: !task.is_flagged })
   }
+
+  const handleChangeCategory = async (newCategory: string) => {
+    if (!onUpdate) return
+    await onUpdate(task.id, { category: newCategory })
+  }
+
+  const categories = ["work", "personal", "shopping", "health", "finance", "other"]
 
   const getDueLabel = (dueDate: string | null) => {
     if (!dueDate) return null
@@ -216,6 +225,12 @@ export function TaskCard({ task, onUpdate, onDelete, showPhone }: TaskCardProps)
                     </Badge>
                   )}
                 </div>
+                
+                {/* Date Added */}
+                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2">
+                  <Clock className="h-3 w-3" />
+                  <span>Added {formatDistanceToNow(new Date(task.created_at), { addSuffix: true })}</span>
+                </div>
               </>
             )}
           </div>
@@ -232,7 +247,7 @@ export function TaskCard({ task, onUpdate, onDelete, showPhone }: TaskCardProps)
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem onClick={() => setIsEditing(true)}>
                   <Pencil className="h-4 w-4 mr-2" />
                   Edit
@@ -241,6 +256,28 @@ export function TaskCard({ task, onUpdate, onDelete, showPhone }: TaskCardProps)
                   <Flag className="h-4 w-4 mr-2" />
                   {task.is_flagged ? "Unflag" : "Flag"}
                 </DropdownMenuItem>
+                
+                {/* Change Category Submenu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+                      <Tag className="h-4 w-4 mr-2" />
+                      Change Category
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent side="left" align="start">
+                    {categories.map((cat) => (
+                      <DropdownMenuItem
+                        key={cat}
+                        onClick={() => handleChangeCategory(cat)}
+                        className={cn(task.category === cat && "bg-accent")}
+                      >
+                        {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
                 <DropdownMenuItem 
                   onClick={handleDelete}
                   className="text-destructive focus:text-destructive"
