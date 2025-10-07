@@ -1,0 +1,37 @@
+=== COPY THESE TO VERCEL ===
+
+Variable Name: NEXT_PUBLIC_SUPABASE_URL
+Value: https://tdrkddwcoptxirktgelq.supabase.co
+
+---
+
+Variable Name: NEXT_PUBLIC_SUPABASE_ANON_KEY
+Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcmtkZHdjb3B0eGlya3RnZWxxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk2NjQyMjcsImV4cCI6MjA3NTI0MDIyN30.s0GuDbiumsnUQd0w02Z-93TWHcjcqjqkyDJ3-outZC0
+
+---
+
+Variable Name: SUPABASE_SERVICE_ROLE_KEY
+Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcmtkZHdjb3B0eGlya3RnZWxxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTY2NDIyNywiZXhwIjoyMDc1MjQwMjI3fQ.L5rHRdab44lrSxgknL1-hc07Cq1BvZRSrdfj43trfHw
+
+---
+
+Variable Name: WHATSAPP_ACCESS_TOKEN
+Value: EAAVSwFSrtD0BPtzfI8S7x0E1ilQMjShyCJwYeu1cRdyLVlavSFL8mHb5jVSZBGhyYkTf1l0t9SMrscnUbkywdPFHXSNPyNM4Y4QhLIJSOxy8sQR5ZBxfTcbiM3zxK7yxBpqhiTG3lnqWkjkLEwKm1EzgcrQyFvtRs46oEvlk9S1Qv5Bb0Im4YodZCrs7DPhv5O8WEuR2OTWQbwp0IXwms8KP8Kv5WySCxnloLz0WHXbTgZDZD
+
+---
+
+Variable Name: WHATSAPP_PHONE_NUMBER_ID
+Value: 779868495215958
+
+---
+
+Variable Name: WHATSAPP_VERIFY_TOKEN
+Value: my_secure_verify_token_12345
+
+---
+
+Variable Name: OPENAI_API_KEY
+Value: (YOU NEED TO ADD YOUR OPENAI API KEY HERE - get it from https://platform.openai.com/api-keys)
+
+=== END ===
+
