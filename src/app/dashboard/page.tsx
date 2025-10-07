@@ -33,6 +33,15 @@ export default function DashboardPage() {
       const data = await response.json()
       
       if (response.ok) {
+        // Log first task to verify structure
+        if (data.tasks && data.tasks.length > 0) {
+          console.log('Dashboard - First task received:', {
+            id: data.tasks[0].id,
+            title: data.tasks[0].title,
+            summary: data.tasks[0].summary,
+            content: data.tasks[0].content?.substring(0, 50)
+          })
+        }
         setTasks(data.tasks || [])
       } else {
         toast.error("Failed to fetch tasks")

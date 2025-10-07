@@ -51,6 +51,14 @@ export async function GET(request: NextRequest) {
         { status: 500 }
       )
     }
+    
+    // Log tasks to verify title/summary are present
+    console.log('Fetching tasks - sample:', tasks?.slice(0, 2).map(t => ({
+      id: t.id,
+      title: t.title,
+      summary: t.summary,
+      content: t.content?.substring(0, 50)
+    })))
 
     return NextResponse.json({ tasks })
   } catch (error) {
